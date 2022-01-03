@@ -14,3 +14,6 @@ RUN apt-get install -y git
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 RUN pip install ipywidgets
+
+COPY tkn /root/tkn
+COPY git_* /root/
