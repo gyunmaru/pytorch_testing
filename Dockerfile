@@ -18,6 +18,5 @@ RUN apt-get install -y git &&\
     pip install ipywidgets
 RUN git config --global user.email $(cat /root/git_email)
 RUN git config --global user.name $(cat /root/git_usr)
-RUN git clone https://github.com/takanobu-kawahara/pytorch_testing/
 
 
