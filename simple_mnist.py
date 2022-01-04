@@ -1,6 +1,7 @@
-#just testing
+# just testing
 # %%
 from __future__ import print_function
+import pandas as pd
 import argparse
 import torch
 import torch.nn as nn
@@ -10,6 +11,7 @@ from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 
 # %%
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -37,6 +39,8 @@ class Net(nn.Module):
         return output
 
 # %%
+
+
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -54,6 +58,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
                 break
 # %%
 
+
 def test(model, device, test_loader):
     model.eval()
     test_loss = 0
@@ -62,8 +67,10 @@ def test(model, device, test_loader):
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
-            pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+            # sum up batch loss
+            test_loss += F.nll_loss(output, target, reduction='sum').item()
+            # get the index of the max log-probability
+            pred = output.argmax(dim=1, keepdim=True)
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
@@ -73,9 +80,7 @@ def test(model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
 
-
 # %%
-
 # def main():
     # Training settings
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -101,7 +106,7 @@ parser.add_argument('--save-model', action='store_true', default=False,
                     help='For Saving the current Model')
 
 
-args = parser.parse_args(args=[])
+args = parser.parse_args(args=['--epochs', '3'])
 use_cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
@@ -111,19 +116,19 @@ device = torch.device("cuda" if use_cuda else "cpu")
 kwargs = {'batch_size': args.batch_size}
 if use_cuda:
     kwargs.update({'num_workers': 1,
-                    'pin_memory': True,
-                    'shuffle': True},
-                    )
+                   'pin_memory': True,
+                   'shuffle': True},
+                  )
 
-transform=transforms.Compose([
+transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.1307,), (0.3081,))
-    ])
+])
 dataset1 = datasets.MNIST('../data', train=True, download=True,
-                    transform=transform)
+                          transform=transform)
 dataset2 = datasets.MNIST('../data', train=False,
-                    transform=transform)
-train_loader = torch.utils.data.DataLoader(dataset1,**kwargs)
+                          transform=transform)
+train_loader = torch.utils.data.DataLoader(dataset1, **kwargs)
 test_loader = torch.utils.data.DataLoader(dataset2, **kwargs)
 
 model = Net().to(device)
@@ -143,17 +148,30 @@ if args.save_model:
 
 # if __name__ == '__main__':
 #     main()
-# %%
-
-
-model.state_dict().keys()
-# %%
 
 sd = model.state_dict()
 keys = sd.keys()
 # %%
 
-for k in sd.keys():
+items = dict()
+items['key'] = []
+items['size'] = []
+items['min'] = []
+items['median'] = []
+items['max'] = []
+items['sum_abs'] = []
+items['mean_abs'] = []
 
-    print(k,sd[k].size(),f'{torch.abs(sd[k]).sum().item():.5f}')
+for k in sd.keys():
+    items['key'].append(k)
+    items['size'].append(sd[k].size())
+    items['min'].append(sd[k].min().item())
+    items['median'].append(sd[k].median().item())
+    items['max'].append(sd[k].max().item())
+    items['sum_abs'].append(torch.abs(sd[k]).sum().item())
+    items['mean_abs'].append(torch.abs(sd[k]).mean().item())
+
+# %%
+pd.DataFrame(items)
+
 # %%
