@@ -9,11 +9,15 @@ ENV LC_ALL ja_JP.UTF-8
 ENV TZ JST-9
 ENV TERM xterm
 
-RUN apt-get install -y git
-
-RUN pip install --upgrade pip
-RUN pip install --upgrade setuptools
-RUN pip install ipywidgets
-
 COPY tkn /root/tkn
 COPY git_* /root/
+
+RUN apt-get install -y git &&\
+    pip install --upgrade pip &&\
+    pip install --upgrade setuptools &&\
+    pip install ipywidgets
+RUN git config --global user.email $(cat /root/git_email)
+RUN git config --global user.name $(cat /root/git_usr)
+RUN git clone https://github.com/takanobu-kawahara/pytorch_testing/
+
+
